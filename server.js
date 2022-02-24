@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // Database
 
 const mongoInit = require('./database').initialize
-const { User } = require('./database/Models')
+const { User, Exercise } = require('./database/Models')
 
 // Routes
 
@@ -37,6 +37,34 @@ app.post('/api/users', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   const users = await User.find({})
   res.json(users)
+})
+
+app.post('/api/users/:_id/exercises', async (req, res) => {
+  const { description, duration, date } = req.body;
+
+  if (!description || !duration) {
+    res.status(400).send({ error: "Somthing bad happend!" });
+  }
+
+  const userId = req.params._id;
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        duration,
+        description,
+        date,
+      },
+    },
+    { new: true }
+  );
+
+  if (!user) {
+    return res.status(400).send({ error: "Somthing bad happend!" });
+  }
+
+  res.send(user);
 })
 
 const listener = app.listen(process.env.PORT || 3000, async () => {
