@@ -54,7 +54,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       $set: {
         duration,
         description,
-        date,
+        date: date ? date : new Date().toDateString(),
       },
     },
     { new: true }
