@@ -74,14 +74,30 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     return res.status(400).send({ error: "Somthing bad happend!" });
   }
 
-  const log = await Log.find({ userId }, { _id: 0, userId: 0 });
+  let log
+  const filters = req.query
+  const options = {}
 
-  // Change time to date string
-  const formatedLogs = log.map(({ description, duration, date }) => ({
+  if (filters.limit) options.limit = filters.limit
+
+  // if (filters.to) {
+  //   log = await Log.find({ userId, date: { $lt: filters.to } }, { _id: 0, userId: 0 }, options);
+  // }
+
+  if (filters.from && filters.to) {
+    log = await Log.find({ userId, date: { $gte: filters.from, $lt: filters.to } }, { _id: 0, userId: 0 }, options);
+  }
+
+  if (!filters.to || !filters.from) {
+    log = await Log.find({ userId }, { _id: 0, userId: 0 }, options);
+  }
+
+  // Change date
+  const formatedLogs = log.map(({ description, duration, date}) => ({
     duration,
     description,
-    date: new Date(date).toDateString(),
-  }));
+    date: new Date(date).toDateString()
+  }))
 
   res.send({
     _id: user._id,
