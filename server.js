@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // Database
 
 const mongoInit = require('./database').initialize
-const { User, Exercise } = require('./database/Models')
+const { User, Log } = require('./database/Models')
 
 // Routes
 
@@ -48,23 +48,40 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
 
   const userId = req.params._id;
 
-  const user = await User.findByIdAndUpdate(
-    userId,
-    {
-      $set: {
-        duration,
-        description,
-        date: date ? date : new Date().toDateString(),
-      },
-    },
-    { new: true }
-  );
+  const user = await User.findById(userId);
 
   if (!user) {
     return res.status(400).send({ error: "Somthing bad happend!" });
   }
 
-  res.send(user);
+  const data = {
+    duration,
+    description,
+    date: date ? date : new Date().toDateString(),
+  }
+
+  const log = new Log({ ...data, userId: user._id })
+  log.save()
+
+  res.send({ ...data, _id: user._id, username: user.username });
+})
+
+app.get('/api/users/:_id/logs', async (req, res) => {
+  const userId = req.params._id;
+  const user = await User.findById(userId)
+
+  if (!user) {
+    return res.status(400).send({ error: "Somthing bad happend!" });
+  }
+
+  const logs = await Log.find({ userId }, { '_id': 0, 'userId': 0 })
+
+  res.send({
+    _id: user._id,
+    username: user.username,
+    count: logs.length,
+    logs
+  })
 })
 
 const listener = app.listen(process.env.PORT || 3000, async () => {
