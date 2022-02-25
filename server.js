@@ -74,13 +74,13 @@ app.get('/api/users/:_id/logs', async (req, res) => {
     return res.status(400).send({ error: "Somthing bad happend!" });
   }
 
-  const logs = await Log.find({ userId }, { '_id': 0, 'userId': 0 })
+  const log = await Log.find({ userId }, { '_id': 0, 'userId': 0 })
 
   res.send({
     _id: user._id,
     username: user.username,
     count: logs.length,
-    logs
+    log
   })
 })
 
