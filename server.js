@@ -57,7 +57,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
   const data = {
     duration,
     description,
-    date: new Date(date ? date : null).toDateString(),
+    date: date ? new Date(date).toDateString() : new Date().toDateString(),
   };
 
   const log = new Log({ ...data, userId: user._id });
@@ -76,11 +76,18 @@ app.get("/api/users/:_id/logs", async (req, res) => {
 
   const log = await Log.find({ userId }, { _id: 0, userId: 0 });
 
+  // Change time to date string
+  const formatedLogs = log.map(({ description, duration, date }) => ({
+    duration,
+    description,
+    date: new Date(date).toDateString(),
+  }));
+
   res.send({
     _id: user._id,
     username: user.username,
     count: log.length,
-    log,
+    log: formatedLogs,
   });
 });
 
