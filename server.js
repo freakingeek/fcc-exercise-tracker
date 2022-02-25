@@ -79,7 +79,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   res.send({
     _id: user._id,
     username: user.username,
-    count: logs.length,
+    count: log.length,
     log,
   });
 });
