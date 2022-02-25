@@ -57,7 +57,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
   const data = {
     duration,
     description,
-    date: date ? date : new Date().toDateString(),
+    date: new Date(date ? date : null).toDateString(),
   };
 
   const log = new Log({ ...data, userId: user._id });
